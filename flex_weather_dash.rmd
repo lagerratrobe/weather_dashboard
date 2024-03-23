@@ -1,0 +1,116 @@
+---
+title: "Last 48 Hours of  Weather"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+runtime: shiny
+---
+
+```{r global, include=FALSE}
+# load data in 'global' chunk so it can be shared by all users of the dashboard
+library(shiny)
+library(ggplot2)
+library(DT)
+library(dplyr)
+library(data.table)
+library(plotly)
+source("utils.R")
+```
+
+Input {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+downloadButtonRmd <- function (outputId, label = "Download", class = NULL, ...)  {
+     tags$a(id = outputId, class = paste("btn btn-default shiny-download-link", 
+        class), href = "", target = "_blank", download = NA, 
+        icon("download"), label, ...)
+ }
+```
+
+```{r}
+# Get the data 
+df <- getData()
+# Ensures that there is only one value per hour (fixes Dallas bug)
+df <- cleanDupeTimes(df)
+
+# Create a selector
+weather_vars <- c(
+  "UV", 
+  "Humidity", 
+  "Temperature", 
+  "Pressure", 
+  "Precip"
+)
+
+station_vars <- list(
+  "Albany, NY" = "KNYALBAN124",
+  "Antioch, TN" = "KTNANTIO26",
+  "Dallas, TX" = "KTXDALLA724",
+  "Seattle, WA" = "KWASEATT2743", 
+  "Sequim, WA" = "KWASEQUI431", 
+  "Montreal, CAN" = "IWESTMOU2"
+)
+
+selectInput(inputId = "stationID",
+            label = h4("Choose City"),
+            choices = names(station_vars),
+            selected = "Seattle, WA")
+
+selectInput(inputId = "variable",
+            label = h4("Choose Variable to Plot"),
+            choices = c("Temperature", "Precip"),
+            selected = "Temperature")
+
+# filter to last 48hrs from specific city
+data <- reactive({
+    filter(df, stationID == station_vars[input$stationID]) |>
+    arrange(desc(Time)) |> 
+    head(n=48)
+})
+
+# Create a download link "Seattle_weather_data-2024-03-01.csv"
+downloadLink('downloadData', 'Download CSV')
+output$downloadData <- downloadHandler(
+  filename = function() {
+    paste(str_split_1(input$stationID, ",")[1],
+          '_weather_data-', 
+          Sys.Date(), 
+          '.csv', 
+          sep='')
+  },
+  content = function(con) {
+    fwrite(data(), con)
+  }
+)
+```
+
+Row
+------------------------------------------------------------------
+
+```{r}
+
+dataPlot <- reactive({
+  getPlot( data(), input$variable, input$stationID )
+})
+
+renderPlotly({
+  dataPlot()
+})
+```
+
+Row
+-------------------------------------------------------------
+
+```{r}
+renderDT(rownames = FALSE,
+         server = FALSE,
+         options = list(bPaginate = FALSE,
+                        dom = 't',
+                        ordering=F,
+                        scrollY = "350px"),
+         {data() %>% arrange(desc("Time")) %>%
+             mutate("Time" = as.character(`Time`))
+         })
+
+```

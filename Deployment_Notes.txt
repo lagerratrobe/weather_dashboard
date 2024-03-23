@@ -1,0 +1,8 @@
+# Deployment Notes
+
+To generate manifest.json, use:
+
+```
+rsconnect::writeManifest(appPrimaryDoc = "sequim_flex_dash.rmd", appMode = "rmd-shiny")
+```
+
