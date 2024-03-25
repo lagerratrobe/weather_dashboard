@@ -31,8 +31,9 @@ downloadButtonRmd <- function (outputId, label = "Download", class = NULL, ...) 
 ```{r}
 # Get the data 
 df <- getData()
+
 # Ensures that there is only one value per hour (fixes Dallas bug)
-df <- cleanDupeTimes(df)
+#df <- cleanDupeTimes(df)
 
 # Create a selector
 weather_vars <- c(

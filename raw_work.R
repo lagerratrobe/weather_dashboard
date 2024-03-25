@@ -1,5 +1,4 @@
 # raw_work.R
-
 library(shiny)
 library(ggplot2)
 library(DT)
@@ -7,28 +6,30 @@ library(dplyr)
 library(data.table)
 source("utils.R")
 
-df <- getData()
 
-dallas_station <- "KTXDALLA724"
+# Test 1 - get just the data for 1 station and compare dupe vs deduped times
 
-df |> filter(stationID == dallas_station) -> df
+system.time({
+  df <- getData()
+  df <- cleanDupeTimes(df)
+  dallas_station <- "KTXDALLA724"
+  data <- filter(df, stationID == dallas_station) |>
+    arrange(desc(Time)) |> 
+    head(n=48)
+  getPlot( data, "Temperature", "Dallas" )
+  DT::datatable(data)
+})
 
-df |> arrange(Time) -> df
 
-df |> tail(100)
-
-df |> group_by( stationID,
-                Date = date(Time),
-                Hour = hour(Time)
-                ) |> 
-  summarise(Temperature = mean(Temperature, na.rm = TRUE),
-            Precip = mean(Precip, na.rm = TRUE),
-            SolarWatts = mean(SolarWatts, na.rm = TRUE),
-            Humidity = mean(Humidity, na.rm = TRUE),
-            Pressure = mean(Pressure, na.rm = TRUE),
-            .groups = "drop"
-            ) |> 
-  mutate(Time = ymd_hm( sprintf("%s %s:00", Date, Hour) )
-         ) |> 
-  arrange(Time) |>
-  select(-`Date`, -`Hour`) 
+# Test 2 - Time the entire operation, data fetch plus plot and table generation
+library(profvis)
+profvis({
+  df <- getData()
+  df <- cleanDupeTimes(df)
+  dallas_station <- "KTXDALLA724"
+  data <- filter(df, stationID == dallas_station) |>
+    arrange(desc(Time)) |> 
+    head(n=48)
+ getPlot( data, "Temperature", "Dallas" )
+ DT::datatable(data)
+})
