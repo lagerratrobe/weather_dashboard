@@ -9,16 +9,15 @@ source("utils.R")
 
 # Test 1 - get just the data for 1 station and compare dupe vs deduped times
 
-system.time({
+#system.time({
   df <- getData()
-  df <- cleanDupeTimes(df)
-  dallas_station <- "KTXDALLA724"
-  data <- filter(df, stationID == dallas_station) |>
+  #df <- cleanDupeTimes(df)
+  data <- filter(df, stationID == "KCAALAME63") |>
     arrange(desc(Time)) |> 
     head(n=48)
-  getPlot( data, "Temperature", "Dallas" )
+  getPlot( data, "Temperature", "Alameda" )
   DT::datatable(data)
-})
+#})
 
 
 # Test 2 - Time the entire operation, data fetch plus plot and table generation

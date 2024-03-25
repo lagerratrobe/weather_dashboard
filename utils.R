@@ -5,13 +5,7 @@ library(stringr, warn.conflicts = FALSE)
 # Read in the entire data and convert obsTimeLocal to POSIXct data type
 getData <- function() {
   df <- readRDS(
-    url("https://github.com/lagerratrobe/weather_station/raw/main/Data/station_obs.RDS")) |>
-    filter(stationID %in% c("KNYALBAN124",
-                            "KTNANTIO26",
-                            "KTXDALLA724",
-                            "KWASEATT2743",
-                            "KWASEQUI431", 
-                            "IWESTMOU2")
+    url("https://github.com/lagerratrobe/weather_station/raw/main/Data/station_obs.RDS")
            ) |>
     mutate(stationID,
            "Time" = lubridate::parse_date_time(
@@ -54,7 +48,9 @@ cleanDupeTimes <- function(df) {
 
 getPlot <- function(weather_data, weather_variable, city_name) {
     city_name <- str_split_1(city_name, ",")[1]
-    if (weather_variable == "Temperature") {
+    if (length(weather_data) < 48) {
+      return(NULL)
+    } else if (weather_variable == "Temperature") {
     title_string <- sprintf("Last 48 Hours of %s Temperature", city_name)
     # Useful vars to use in plotting
     max_temp = max(weather_data[[weather_variable]])
@@ -99,8 +95,7 @@ getPlot <- function(weather_data, weather_variable, city_name) {
       theme(plot.title = element_text(hjust = 0.5, size = 28)) +
       labs(x = "Time",
            y = "Temperature")
-  }
-  if (weather_variable == "Precip") {
+  } else if (weather_variable == "Precip") {
     title_string <- sprintf("Last 48 Hours of %s Precip", city_name)
     total_precip = getTotalPrecip(weather_data)[[1]]
     time_midpoint = weather_data$Time[24]
