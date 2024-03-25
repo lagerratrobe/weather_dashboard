@@ -44,10 +44,14 @@ weather_vars <- c(
   "Precip"
 )
 
+# Deprecated KTXDALLA724 on 3/25/2024 for bad data
 station_vars <- list(
+  "Alameda, CA" = "KCAALAME63",
   "Albany, NY" = "KNYALBAN124",
   "Antioch, TN" = "KTNANTIO26",
-  "Dallas, TX" = "KTXDALLA724",
+  "Dallas, TX" = "KTXDALLA872",
+  "Houston, TX" = "KTXHOUST3329",
+  "Roanoke, VA" = "KVAROANO253",
   "Seattle, WA" = "KWASEATT2743", 
   "Sequim, WA" = "KWASEQUI431", 
   "Montreal, CAN" = "IWESTMOU2"
