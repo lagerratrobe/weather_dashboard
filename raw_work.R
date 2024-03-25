@@ -7,15 +7,24 @@ library(data.table)
 source("utils.R")
 
 
-# Test 1 - get just the data for 1 station and compare dupe vs deduped times
-
+station_vars <- list(
+  "Alameda, CA" = "KCAALAME63",
+  "Albany, NY" = "KNYALBAN124",
+  "Antioch, TN" = "KTNANTIO26",
+  "Dallas, TX" = "KTXDALLA872",
+  "Houston, TX" = "KTXHOUST3329",
+  "Roanoke, VA" = "KVAROANO253",
+  "Seattle, WA" = "KWASEATT2743", 
+  "Sequim, WA" = "KWASEQUI431", 
+  "Montreal, CAN" = "IWESTMOU2"
+)
 #system.time({
   df <- getData()
   #df <- cleanDupeTimes(df)
-  data <- filter(df, stationID == "KCAALAME63") |>
+  data <- filter(df, stationID == station_vars["Seattle, WA"]) |>
     arrange(desc(Time)) |> 
     head(n=48)
-  getPlot( data, "Temperature", "Alameda" )
+  getPlot( data, "Temperature", "Seattle" )
   DT::datatable(data)
 #})
 

@@ -48,7 +48,7 @@ cleanDupeTimes <- function(df) {
 
 getPlot <- function(weather_data, weather_variable, city_name) {
     city_name <- str_split_1(city_name, ",")[1]
-    if (length(weather_data) < 48) {
+    if (nrow(weather_data) < 48) {
       return(NULL)
     } else if (weather_variable == "Temperature") {
     title_string <- sprintf("Last 48 Hours of %s Temperature", city_name)
